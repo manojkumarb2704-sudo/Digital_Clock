@@ -3,14 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futuristic Responsive Clock</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;500&display=swap');
+    <title>Futuristic Digital Clock</title>
+    
+    <link href="https://fonts.googleapis.com/css2=family=Inter:wght@300;500&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
+    <style>
+        /* --- CSS STYLING --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #060713;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff0055;
+            --text-primary: #ffffff;
+            --text-secondary: #8f9cae;
         }
 
         body {
@@ -18,205 +30,231 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: #050505;
-            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
             perspective: 1000px;
         }
 
-        /* Dynamic Animated Background */
-        .bg-glow {
+        /* Ambient matrix background grid */
+        body::before {
+            content: '';
             position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(0, 231, 255, 0.3) 0%, rgba(0,0,0,0) 70%);
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+
+        /* Clock Outer Wrapper for micro-interaction */
+        .clock-container {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .clock-container:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        /* Dynamic Reactive Glow backdrop */
+        .glow-effect {
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 1;
-            mix-blend-mode: screen;
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, transparent 70%);
+            filter: blur(40px);
+            z-index: -1;
             pointer-events: none;
             transition: background 1s ease;
         }
 
-        /* Glassmorphism Clock Container */
-        .clock-container {
-            position: relative;
-            z-index: 2;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Glassmorphism Core Card */
+        .clock-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             padding: 3rem 4rem;
             border-radius: 24px;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            text-align: center;
-            transform-style: preserve-3d;
-            transition: transform 0.1s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-        .clock-container:hover {
-            box-shadow: 0 40px 80px rgba(0, 231, 255, 0.15),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        }
-
-        /* Date Section */
-        .date-box {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #8a99ad;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 1rem;
-            transform: translateZ(30px);
-            transition: color 1s ease;
-        }
-
-        /* Time Display */
-        .time-box {
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             display: flex;
-            justify-content: center;
-            align-items: baseline;
-            gap: 10px;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Top Calendar Layout */
+        .date-section {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Central Time Engine Typography */
+        .time-section {
             font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
             font-weight: 700;
-            font-size: 5.5rem;
-            color: #ffffff;
-            line-height: 1;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            transform: translateZ(50px);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
-        /* Specific Glowing Colors for Elements */
-        .hours { color: #ffffff; }
-        .minutes { color: #00e7ff; text-shadow: 0 0 30px rgba(0, 231, 255, 0.5); }
-        .seconds { 
-            font-size: 3rem; 
-            font-weight: 400; 
-            color: #ff007f; 
-            text-shadow: 0 0 30px rgba(255, 0, 127, 0.5);
-            min-width: 80px;
-            text-align: left;
-        }
-
+        /* Blinking Colon Dividers */
         .colon {
-            color: #4a5568;
+            color: var(--neon-cyan);
             animation: blink 1s infinite;
+            text-shadow: 0 0 15px var(--neon-cyan);
         }
 
-        /* Period (AM/PM) Box */
-        .period-box {
+        /* Pink Focal point for Seconds */
+        #seconds {
+            font-size: 3rem;
+            color: var(--neon-pink);
+            text-shadow: 0 0 15px var(--neon-pink);
+            align-self: flex-end;
+            margin-bottom: 0.5rem;
+            min-width: 75px; /* Keeps layout locked when digits change width */
+        }
+
+        #ampm {
             font-size: 1.2rem;
             font-weight: 900;
-            color: #fff;
-            background: linear-gradient(45deg, #00e7ff, #ff007f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-secondary);
             letter-spacing: 2px;
-            margin-top: 1rem;
-            transform: translateZ(40px);
+            margin-left: 0.5rem;
+            align-self: flex-end;
+            margin-bottom: 0.9rem;
         }
 
-        /* Blinking Animation for Colons */
+        /* Smart Greeting Layer */
+        .greeting-section {
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--neon-cyan);
+            opacity: 0.8;
+        }
+
+        /* Animations */
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.2; }
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .clock-container {
-                padding: 2rem 2.5rem;
-                width: 90%;
-                max-width: 450px;
+        /* Comprehensive Responsive Breakpoint */
+        @media (max-width: 600px) {
+            .clock-card {
+                padding: 2rem 2rem;
+                width: 90vw;
             }
-            .time-box {
-                font-size: 3.5rem;
+            .time-section {
+                font-size: 2.8rem;
             }
-            .seconds {
-                font-size: 2rem;
-                min-width: 50px;
+            #seconds {
+                font-size: 1.8rem;
+                min-width: 45px;
             }
-            .date-box {
-                font-size: 0.8rem;
-                letter-spacing: 2px;
+            #ampm {
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow" id="bgGlow"></div>
-
-    <div class="clock-container" id="clockContainer">
-        <div class="date-box" id="dateBox">LOADING DATE...</div>
-        <div class="time-box">
-            <span class="hours" id="hours">00</span>
-            <span class="colon">:</span>
-            <span class="minutes" id="minutes">00</span>
-            <span class="seconds" id="seconds">00</span>
+    <div class="clock-container">
+        <div class="glow-effect"></div>
+        
+        <div class="clock-card">
+            <div class="date-section" id="date-display">
+                Initializing...
+            </div>
+            
+            <div class="time-section">
+                <span id="hours">00</span>
+                <span class="colon">:</span>
+                <span id="minutes">00</span>
+                <span class="colon">:</span>
+                <span id="seconds">00</span>
+                <span id="ampm">AM</span>
+            </div>
+            
+            <div class="greeting-section" id="greeting">
+                Welcome
+            </div>
         </div>
-        <div class="period-box" id="period">PM</div>
     </div>
 
     <script>
-        // 1. Core Clock Logic
+        // --- JAVASCRIPT LOGIC ---
         function updateClock() {
             const now = new Date();
             
-            // Time elements
+            // 1. Core Structural Time Gathering
             let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
             const ampm = hours >= 12 ? 'PM' : 'AM';
             
-            // Convert to 12-hour format
-            hours = hours % 12;
-            hours = hours ? hours : 12; // The hour '0' should be '12'
-            const hoursStr = String(hours).padStart(2, '0');
+            const greetingEl = document.getElementById('greeting');
+            const glowEl = document.querySelector('.glow-effect');
+            
+            // 2. Real-time Reactive Ambient Lighting Environment
+            if (hours < 12) {
+                greetingEl.textContent = "Good Morning";
+                glowEl.style.background = "radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, transparent 70%)"; // Electric Cyan
+            } else if (hours < 18) {
+                greetingEl.textContent = "Good Afternoon";
+                glowEl.style.background = "radial-gradient(circle, rgba(255, 170, 0, 0.12) 0%, transparent 70%)"; // Amber Sunset
+            } else {
+                greetingEl.textContent = "Good Evening";
+                glowEl.style.background = "radial-gradient(circle, rgba(255, 0, 85, 0.12) 0%, transparent 70%)"; // Cyberpink Dusk
+            }
 
-            // DOM Updates
-            document.getElementById('hours').textContent = hoursStr;
+            // Transform into clean standard 12-Hour format
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            
+            // String formatting padding to avoid element shaking
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            // Injecting elements directly into DOM layout 
+            document.getElementById('hours').textContent = hours;
             document.getElementById('minutes').textContent = minutes;
             document.getElementById('seconds').textContent = seconds;
-            document.getElementById('period').textContent = ampm;
+            document.getElementById('ampm').textContent = ampm;
 
-            // Date Elements
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('dateBox').textContent = now.toLocaleDateString('en-US', options);
-
-            // Dynamic background glow shifting color based on seconds
-            const hue = (now.getSeconds() * 6) + (now.getMinutes() * 0.1); 
-            document.getElementById('bgGlow').style.background = `radial-gradient(circle, hsla(${hue}, 100%, 50%, 0.25) 0%, rgba(0,0,0,0) 70%)`;
+            // 3. Clean Language-Sensitive Date Generation
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const dateString = now.toLocaleDateString('en-US', options);
+            document.getElementById('date-display').textContent = dateString;
         }
 
-        // Initialize clock and set interval
-        setInterval(updateClock, 1000);
+        // Initialize clock engine immediately upon render
         updateClock();
 
-
-        // 2. 3D Parallax Hover Effect 
-        const card = document.getElementById('clockContainer');
-        const body = document.body;
-
-        body.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 15; // sensitivity
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 15;
-            
-            card.style.transform = `rotateY(${-xAxis}deg) rotateX(${yAxis}deg)`;
-        });
-
-        // Reset positions on mouse leave
-        body.addEventListener('mouseleave', () => {
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
-            card.style.transition = "transform 0.5s ease";
-        });
-
-        body.addEventListener('mouseenter', () => {
-            card.style.transition = "none";
-        });
+        // Exact intervals mapping every 1000ms loop
+        setInterval(updateClock, 1000);
     </script>
 </body>
 </html>
